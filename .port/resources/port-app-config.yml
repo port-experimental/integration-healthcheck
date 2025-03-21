@@ -1,0 +1,23 @@
+resources:
+  - kind: integration
+    selector:
+      query: 'true'
+      logLimit: 1000
+    port:
+      entity:
+        mappings:
+          identifier: ._id
+          title: .identifier // .identifier + " - " + .name
+          blueprint: '"portIntegration"'
+          properties:
+            installationAppType: .installationAppType
+            version: .version
+            installationType: .installationType
+            status: .status
+            health: .__health
+            lastResyncStart: .lastResyncStart
+            lastResyncEnd: .lastResyncEnd
+            nextResync: .nextResync
+            config: .config
+            errorMessage: .__errorMessage
+          

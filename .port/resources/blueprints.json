@@ -1,0 +1,93 @@
+[
+    {
+        "identifier": "portIntegration",
+        "title": "Port Integration",
+        "icon": "Integration",
+        "schema": {
+            "properties": {
+                "installationAppType": {
+                    "type": "string",
+                    "title": "Integration Type",
+                    "description": "The type of integration (e.g., kubecost, pagerduty, etc.)"
+                },
+                "version": {
+                    "type": "string",
+                    "title": "Version",
+                    "description": "The version of the integration"
+                },
+                "installationType": {
+                    "type": "string",
+                    "title": "Installation Type",
+                    "enum": ["OnPrem", "Saas"],
+                    "enumColors": {
+                        "OnPrem": "blue",
+                        "Saas": "green"
+                    },
+                    "description": "The type of installation"
+                },
+                "status": {
+                    "type": "string",
+                    "title": "Status",
+                    "enum": ["running", "completed"],
+                    "enumColors": {
+                        "running": "blue",
+                        "completed": "green"
+                    },
+                    "description": "The current status of the integration"
+                },
+                "health": {
+                    "type": "string",
+                    "title": "Health",
+                    "enum": [
+                        "HEALTHY",
+                        "WARNING",
+                        "ERROR",
+                        "INACTIVE"
+                    ],
+                    "enumColors": {
+                        "HEALTHY": "green",
+                        "WARNING": "yellow",
+                        "ERROR": "red",
+                        "INACTIVE": "gray"
+                    },
+                    "description": "The health status of the integration"
+                },
+                "errorMessage": {
+                    "type": "string",
+                    "title": "Error Message",
+                    "description": "Error message if the integration is not healthy"
+                },
+                "lastResyncStart": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "Last Resync Start",
+                    "description": "The timestamp of the last resync start"
+                },
+                "lastResyncEnd": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "Last Resync End",
+                    "description": "The timestamp of the last resync end"
+                },
+                "nextResync": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "Next Resync",
+                    "description": "The timestamp of the next scheduled resync"
+                },
+                "config": {
+                    "type": "object",
+                    "title": "Configuration",
+                    "description": "The integration configuration"
+                }
+            },
+            "required": [
+                "installationId",
+                "installationAppType",
+                "version",
+                "installationType"
+            ]
+        },
+        "relations": {}
+    }
+]
