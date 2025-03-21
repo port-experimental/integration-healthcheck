@@ -1,7 +1,5 @@
 # integration-healthcheck
 
-An integration used to import port-integrations resources into Port.
+An integration providing healthcheck capabilities and visualization to Port integrations within Port
 
-#### Install & use the integration - [Integration documentation](https://docs.getport.io/build-your-software-catalog/sync-data-to-catalog/) *Replace this link with a link to this integration's documentation*
-
-#### Develop & improve the integration - [Ocean integration development documentation](https://ocean.getport.io/develop-an-integration/)
+![image](https://github.com/user-attachments/assets/7862a0ce-0add-4f08-acc8-c4d4627e72a2)
