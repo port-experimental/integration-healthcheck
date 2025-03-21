@@ -7,17 +7,17 @@ resources:
       entity:
         mappings:
           identifier: ._id
-          title: .identifier // .identifier + " - " + .name
+          title: .identifier // .identifier + " - " + .title
           blueprint: '"portIntegration"'
           properties:
             installationAppType: .installationAppType
             version: .version
             installationType: .installationType
-            status: .status
+            status: .resyncState
             health: .__health
-            lastResyncStart: .lastResyncStart
-            lastResyncEnd: .lastResyncEnd
-            nextResync: .nextResync
+            lastResyncStart: .resyncState.lastResyncStart
+            lastResyncEnd: .resyncState.lastResyncEnd
+            nextResync: .resyncState.nextResync
             config: .config
             errorMessage: .__errorMessage
           

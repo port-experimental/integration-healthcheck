@@ -74,6 +74,8 @@ class IntegrationClient:
         return audits
     
     def _determine_integration_health_from_logs(self, logs: list[dict[str, Any]], from_date: str) -> tuple[IntegrationHealth, str]:
+        if not logs:
+            return "INACTIVE", ""
         for log in reversed(logs):
             if log["level"] == "ERROR":
                 return "ERROR", log["message"]
@@ -84,6 +86,8 @@ class IntegrationClient:
         return "HEALTHY", ""
     
     def _determine_integration_health_from_audit_logs(self, logs: list[dict[str, Any]]) -> tuple[IntegrationHealth, str]:
+        if not logs:
+            return "INACTIVE", ""
         for log in logs:
             if log["status"] == "FAILURE":
                 return "ERROR", log["message"]
