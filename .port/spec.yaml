@@ -1,15 +1,8 @@
-description: port-integrations integration for Port Ocean
-icon: Cookiecutter  # Should be one of the available icons in Port
+title: Port Integration Healthcheck
+description: Port Integration Healthcheck integration for Port Ocean
+icon: Apps
 features:
   - type: exporter
-    section: Under Development  # Should be one of the available sections in Port
+    section: Under Development
     resources:
-      - kind: port-integrations-example-kind
-      # - kind: <ResourceName2>
-configurations:
-  - name: myport-integrationsToken
-    # required: true
-    type: string
-    sensitive: true
-  - name: someApplicationUrl
-    type: url
+      - kind: integration

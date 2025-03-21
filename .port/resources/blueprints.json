@@ -48,7 +48,7 @@
                         "HEALTHY": "green",
                         "WARNING": "yellow",
                         "ERROR": "red",
-                        "INACTIVE": "gray"
+                        "INACTIVE": "lightGray"
                     },
                     "description": "The health status of the integration"
                 },
@@ -80,13 +80,7 @@
                     "title": "Configuration",
                     "description": "The integration configuration"
                 }
-            },
-            "required": [
-                "installationId",
-                "installationAppType",
-                "version",
-                "installationType"
-            ]
+            }
         },
         "relations": {}
     }

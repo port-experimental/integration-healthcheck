@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import httpx
 from loguru import logger
 from port_ocean.utils import http_async_client
@@ -72,39 +73,46 @@ class IntegrationClient:
         logger.info(f"Fetched {len(audits)} audit logs")
         return audits
     
-    def _determine_integration_health_from_logs(self, logs: list[dict[str, Any]]) -> tuple[IntegrationHealth, str]:
-        logger.info(f"Determining integration health from logs: {logs}")
+    def _determine_integration_health_from_logs(self, logs: list[dict[str, Any]], from_date: str) -> tuple[IntegrationHealth, str]:
         for log in reversed(logs):
             if log["level"] == "ERROR":
                 return "ERROR", log["message"]
             if log["level"] == "WARNING":
                 return "WARNING", log["message"]
+            if log["timestamp"] < from_date:
+                return "HEALTHY", ""
         return "HEALTHY", ""
     
     def _determine_integration_health_from_audit_logs(self, logs: list[dict[str, Any]]) -> tuple[IntegrationHealth, str]:
-        logger.info(f"Determining integration health from audit logs: {logs}")
         for log in logs:
             if log["status"] == "FAILURE":
                 return "ERROR", log["message"]
         return "HEALTHY", ""
-    
+
     async def _enrich_integration_health(self, integration: dict[str, Any], log_limit: int) -> dict[str, Any]:
-        logger.info(f"Enriching integration health for integration: {integration['id']}")
+        logger.info(f"Enriching integration health for integration: {integration['_id']}")
         if "resyncState" not in integration:
             integration["__health"] = "INACTIVE"
             integration["__errorMessage"] = ""
+            return integration
+        
         logs = await self._get_integration_audit_logs(
-            integration["id"],
+            integration["installationId"],
             (integration["resyncState"].get("lastResyncStart") or integration["createdAt"])
         )
-        health, error_message = self._determine_integration_health_from_audit_logs(logs)
+        health, error_message = self._determine_integration_health_from_audit_logs(
+            logs,
+        )
         if health != "HEALTHY":
             integration["__health"] = health
             integration["__errorMessage"] = error_message
             return integration
         
-        logs = await self._get_integration_logs(integration["id"], log_limit)
-        health, error_message = self._determine_integration_health_from_logs(logs)
+        logs = await self._get_integration_logs(integration["installationId"], log_limit)
+        health, error_message = self._determine_integration_health_from_logs(
+            logs,
+            integration["resyncState"].get("lastResyncStart") or integration["createdAt"]
+        )
         integration["__health"] = health
         integration["__errorMessage"] = error_message
         return integration
