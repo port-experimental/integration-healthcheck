@@ -3,6 +3,7 @@ name = "port-integrations"
 version = "0.1.0-beta"
 description = "egrations at Port with Port"
 authors = ["Ayodeji Adeoti <ayodeji.adeoti@getport.io>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
