@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- towncrier release notes start -->
 
+## 0.1.1-beta (2025-03-31)
+
+
+### Bug Fixes
+
+- Fixed error about package mode when installing project dependencies
+
+
 ## 0.1.0-beta (2025-03-21)
 
 
