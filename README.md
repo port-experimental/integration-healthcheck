@@ -11,11 +11,10 @@ To install the integration, you should have the following:
 - Poetry. If you don't have it, install it with `pip install poetry`
 
 ## Setup
-1. Clone the repository
+1. Clone the repository and navigate to the integration directory with `cd integration-healthcheck`
 2. Run `poetry install` to install the dependencies
 3. Copy the `.env.example` file to `.env` and fill in the missing values
 4. Run `make run` to run the integration
-
 
 ## Known issues
 - The integration itself running is not yet able to detect its own health since it is still in execution, so you might see inaccurate health statuses for the integration itself.
