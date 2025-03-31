@@ -2,7 +2,7 @@ resources:
   - kind: integration
     selector:
       query: 'true'
-      logLimit: 1000
+      logLimit: 300
     port:
       entity:
         mappings:

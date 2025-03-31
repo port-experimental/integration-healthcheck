@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- towncrier release notes start -->
 
+## 0.1.2-beta (2025-03-31)
+
+
+### Bug Fixes
+
+- Changed logLimit default to allowable value (0.1.2-beta)
+
+
 ## 0.1.1-beta (2025-03-31)
 
 
