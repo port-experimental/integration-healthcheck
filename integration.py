@@ -10,8 +10,10 @@ from port_ocean.core.handlers.port_app_config.models import (
 from port_ocean.core.integrations.base import BaseIntegration
 from pydantic.fields import Field
 
+
 class ObjectKind(StrEnum):
     INTEGRATION = "integration"
+
 
 class IntegrationSelector(Selector):
     log_limit: int = Field(
@@ -25,6 +27,7 @@ class IntegrationSelector(Selector):
         if v > 300:
             raise ValueError("log_limit cannot be greater than 300")
         return v
+
 
 class IntegrationResourceConfig(ResourceConfig):
     selector: IntegrationSelector

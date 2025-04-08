@@ -1,11 +1,11 @@
 from typing import Any, cast
 
-from port_ocean.context.ocean import ocean
 from loguru import logger
 from port_ocean.context.event import event
+from port_ocean.context.ocean import ocean
 
 from client import IntegrationClient
-from integration import ObjectKind, IntegrationResourceConfig
+from integration import IntegrationResourceConfig, ObjectKind
 
 
 def initialize_client() -> IntegrationClient:
@@ -27,7 +27,7 @@ async def on_resync(kind: str) -> list[dict[Any, Any]]:
     logger.info(f"Received batch of {len(integrations)} integrations")
     return integrations
 
-  
+
 @ocean.on_start()
 async def on_start() -> None:
     logger.info("Starting Port integration")
@@ -37,6 +37,5 @@ async def on_start() -> None:
     if not status:
         logger.error("Port integration is not healthy")
         raise Exception("Port integration is not healthy")
-    
-    logger.info("Port integration is healthy")
 
+    logger.info("Port integration is healthy")

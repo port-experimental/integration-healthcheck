@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "port-integrations"
-version = "0.1.0-beta"
+version = "0.1.3-beta"
 description = "egrations at Port with Port"
 authors = ["Ayodeji Adeoti <ayodeji.adeoti@getport.io>"]
 package-mode = false
