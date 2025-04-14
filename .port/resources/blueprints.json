@@ -79,6 +79,16 @@
                     "type": "object",
                     "title": "Configuration",
                     "description": "The integration configuration"
+                },
+                "successfulUpserts": {
+                    "type": "integer",
+                    "title": "Successful Upserts",
+                    "description": "Number of successful upserts performed by the integration"
+                },
+                "failedUpserts": {
+                    "type": "integer",
+                    "title": "Failed Upserts",
+                    "description": "Number of failed upserts performed by the integration"
                 }
             }
         },

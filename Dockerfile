@@ -33,7 +33,9 @@ RUN apt-get update \
 
 LABEL INTEGRATION_VERSION=${INTEGRATION_VERSION}
 # Used to ensure that new integrations will be public, see https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility
-LABEL org.opencontainers.image.source=https://github.com/port-labs/ocean
+LABEL org.opencontainers.image.source=https://github.com/port-experimental/integration-healthcheck
+LABEL org.opencontainers.image.title="Integration Healthcheck"
+LABEL org.opencontainers.image.description="A service for monitoring and reporting the health status of Port integrations"
 
 ENV PIP_ROOT_USER_ACTION=ignore
 
@@ -45,7 +47,7 @@ COPY ./${BUILD_CONTEXT} /app
 # Copy dependencies from the build stage
 COPY --from=base /app/.venv /app/.venv
 
-# COPY ./integrations/_infra/init.sh /app/init.sh
+COPY ./${BUILD_CONTEXT}/_infra/init.sh /app/init.sh
 
 # Ensure that ocean is available for all in path
 RUN chmod a+x /app/.venv/bin/ocean

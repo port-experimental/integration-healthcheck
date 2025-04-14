@@ -13,11 +13,13 @@ resources:
             installationAppType: .installationAppType
             version: .version
             installationType: .installationType
-            status: .resyncState
+            status: .resyncState.status
             health: .__health
             lastResyncStart: .resyncState.lastResyncStart
             lastResyncEnd: .resyncState.lastResyncEnd
             nextResync: .resyncState.nextResync
             config: .config
             errorMessage: .__errorMessage
+            successfulUpserts: .__successfulUpserts
+            failedUpserts: .__failedUpserts
           

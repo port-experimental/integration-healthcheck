@@ -159,7 +159,7 @@ class IntegrationClient:
         return audits
 
     def _determine_integration_health_from_logs(
-        self, logs: list[dict[str, Any]], from_date: str
+        self, logs: list[dict[str, Any]], from_date: str, context_logs_count: int = 3
     ) -> tuple[IntegrationHealth, str]:
         """
         Determine the health status of an integration based on its logs.
@@ -167,17 +167,28 @@ class IntegrationClient:
         Args:
             logs: List of log entries to analyze
             from_date: The date to consider logs from
+            context_logs_count: Number of recent logs to include in error/warning messages (default: 3)
             
         Returns:
-            Tuple containing the health status and any error message
+            Tuple containing the health status and any error message. If there's an error or warning,
+            the message will include the last N relevant logs for context, where N is context_logs_count.
         """
         if not logs:
             return "INACTIVE", ""
+            
+        # Keep track of the last few logs for context
+        recent_logs = []
         for log in reversed(logs):
+            recent_logs.append(f"[{log['timestamp']}] {log['level']}: {log['message']}")
+            if len(recent_logs) > context_logs_count:  # Keep only the last N logs
+                recent_logs.pop(0)
+                
             if log["level"] == "ERROR":
-                return "ERROR", log["message"]
+                context = "\nRecent logs:\n" + "\n".join(recent_logs)
+                return "ERROR", f"{log['message']}{context}"
             if log["level"] == "WARNING":
-                return "WARNING", log["message"]
+                context = "\nRecent logs:\n" + "\n".join(recent_logs)
+                return "WARNING", f"{log['message']}{context}"
             if log["timestamp"] < from_date:
                 return "HEALTHY", ""
         return "HEALTHY", ""
@@ -201,8 +212,30 @@ class IntegrationClient:
                 return "ERROR", log["message"]
         return "HEALTHY", ""
 
+    def _calculate_upsert_stats(self, audit_logs: list[dict[str, Any]]) -> tuple[int, int]:
+        """
+        Calculate the number of successful and failed upserts from audit logs.
+        
+        Args:
+            audit_logs: List of audit log entries to analyze
+            
+        Returns:
+            Tuple containing (successful_upserts, failed_upserts)
+        """
+        successful_upserts = 0
+        failed_upserts = 0
+        
+        for log in audit_logs:
+            if "upsert" in log.get("message", "").lower():
+                if log["status"] == "SUCCESS":
+                    successful_upserts += 1
+                elif log["status"] == "FAILURE":
+                    failed_upserts += 1
+                    
+        return successful_upserts, failed_upserts
+
     async def _enrich_integration_health(
-        self, integration: dict[str, Any], log_limit: int
+        self, integration: dict[str, Any], log_limit: int, context_logs_count: int = 3
     ) -> dict[str, Any]:
         """
         Enrich an integration object with health status information.
@@ -213,6 +246,7 @@ class IntegrationClient:
         Args:
             integration: The integration dictionary to enrich
             log_limit: Maximum number of logs to fetch
+            context_logs_count: Number of recent logs to include in error/warning messages (default: 3)
             
         Returns:
             The enriched integration dictionary
@@ -223,6 +257,8 @@ class IntegrationClient:
         if "resyncState" not in integration:
             integration["__health"] = "INACTIVE"
             integration["__errorMessage"] = ""
+            integration["__successfulUpserts"] = 0
+            integration["__failedUpserts"] = 0
             return integration
 
         # First check audit logs for failures
@@ -233,6 +269,12 @@ class IntegrationClient:
                 or integration["createdAt"]
             ),
         )
+        
+        # Calculate upsert statistics from audit logs
+        successful_upserts, failed_upserts = self._calculate_upsert_stats(logs)
+        integration["__successfulUpserts"] = successful_upserts
+        integration["__failedUpserts"] = failed_upserts
+        
         health, error_message = self._determine_integration_health_from_audit_logs(
             logs,
         )
@@ -249,24 +291,26 @@ class IntegrationClient:
             logs,
             integration["resyncState"].get("lastResyncStart")
             or integration["createdAt"],
+            context_logs_count,
         )
         integration["__health"] = health
         integration["__errorMessage"] = error_message
         return integration
 
-    async def get_integrations(self, log_limit: int) -> list[dict[str, Any]]:
+    async def get_integrations(self, log_limit: int, context_logs_count: int = 3) -> list[dict[str, Any]]:
         """
         Get all integrations with their health status.
         
         Args:
             log_limit: Maximum number of logs to fetch for each integration
+            context_logs_count: Number of recent logs to include in error/warning messages (default: 3)
             
         Returns:
             List of integration dictionaries enriched with health information
         """
         integrations = await self._fetch_integrations()
         tasks = [
-            self._enrich_integration_health(integration, log_limit)
+            self._enrich_integration_health(integration, log_limit, context_logs_count)
             for integration in integrations
         ]
         integrations = await asyncio.gather(*tasks)

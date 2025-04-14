@@ -21,9 +21,9 @@ def initialize_client() -> IntegrationClient:
 async def on_resync(kind: str) -> list[dict[Any, Any]]:
     selector = cast(IntegrationResourceConfig, event.resource_config).selector
     selector.validate_log_limit(selector.log_limit)
-    logger.info(f"Resyncing integrations with log limit: {selector.log_limit}")
+    logger.info(f"Resyncing integrations with log limit: {selector.log_limit} and context logs count: {selector.context_logs_count}")
     client = initialize_client()
-    integrations = await client.get_integrations(log_limit=selector.log_limit)
+    integrations = await client.get_integrations(log_limit=selector.log_limit, context_logs_count=selector.context_logs_count)
     logger.info(f"Received batch of {len(integrations)} integrations")
     return integrations
 
