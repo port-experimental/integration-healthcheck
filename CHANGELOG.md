@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- towncrier release notes start -->
 
+## 0.1.4-beta (2025-04-14)
+
+
+### Features
+
+- Added more context to error message around errored integrations
+- Added docker image for integration
+- Add support for successful and failed upserts
+
+
 ## 0.1.3-beta (2025-04-08)
 
 
