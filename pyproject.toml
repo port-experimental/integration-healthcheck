@@ -1,13 +1,16 @@
 [tool.poetry]
-name = "port-integrations"
-version = "0.1.3-beta"
-description = "egrations at Port with Port"
+name = "integration-healthcheck"
+version = "0.1.0"
+description = "A service for monitoring and reporting the health status of Port integrations"
 authors = ["Ayodeji Adeoti <ayodeji.adeoti@getport.io>"]
-package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.12"
-port_ocean = { version = "^0.20.0", extras = ["cli"] }
+python = "^3.11"
+port-ocean = "^0.20.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
 # Uncomment this if you want to debug the ocean core together with your integration
@@ -57,10 +60,6 @@ underlines = [""]
   directory = "doc"
   name = "Improved Documentation"
   showcontent = true
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 exclude = [

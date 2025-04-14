@@ -21,6 +21,11 @@ class IntegrationSelector(Selector):
         default=300,
         description="The maximum number of logs to fetch from an integration to determine its health. Cannot be greater than 300",
     )
+    context_logs_count: int = Field(
+        alias="contextLogsCount",
+        default=4,
+        description="The number of recent logs to include in error/warning messages for context",
+    )
 
     @classmethod
     def validate_log_limit(cls, v: int) -> int:

@@ -33,7 +33,9 @@ RUN apt-get update \
 
 LABEL INTEGRATION_VERSION=${INTEGRATION_VERSION}
 # Used to ensure that new integrations will be public, see https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility
-LABEL org.opencontainers.image.source=https://github.com/port-labs/ocean
+LABEL org.opencontainers.image.source=https://github.com/port-experimental/integration-healthcheck
+LABEL org.opencontainers.image.title="Integration Healthcheck"
+LABEL org.opencontainers.image.description="A service for monitoring and reporting the health status of Port integrations"
 
 ENV PIP_ROOT_USER_ACTION=ignore
 

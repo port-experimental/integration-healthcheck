@@ -20,4 +20,6 @@ resources:
             nextResync: .resyncState.nextResync
             config: .config
             errorMessage: .__errorMessage
+            successfulUpserts: .__successfulUpserts
+            failedUpserts: .__failedUpserts
           
