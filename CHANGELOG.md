@@ -17,9 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support for successful and failed upserts
 
 ### Bug Fixes
+
 - Fixed status property mapping
 
 ### Improvements
+
 - Bumped ocean version to 0.22.2
 
 
