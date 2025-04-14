@@ -3,10 +3,11 @@ name = "integration-healthcheck"
 version = "0.1.0"
 description = "A service for monitoring and reporting the health status of Port integrations"
 authors = ["Ayodeji Adeoti <ayodeji.adeoti@getport.io>"]
+package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.11"
-port-ocean = "^0.20.4"
+python = "^3.12"
+port-ocean = {extras = ["cli"], version = "^0.22.2"}
 
 [build-system]
 requires = ["poetry-core"]

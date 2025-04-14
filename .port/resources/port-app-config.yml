@@ -13,7 +13,7 @@ resources:
             installationAppType: .installationAppType
             version: .version
             installationType: .installationType
-            status: .resyncState
+            status: .resyncState.status
             health: .__health
             lastResyncStart: .resyncState.lastResyncStart
             lastResyncEnd: .resyncState.lastResyncEnd

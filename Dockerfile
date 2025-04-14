@@ -47,7 +47,7 @@ COPY ./${BUILD_CONTEXT} /app
 # Copy dependencies from the build stage
 COPY --from=base /app/.venv /app/.venv
 
-# COPY ./integrations/_infra/init.sh /app/init.sh
+COPY ./${BUILD_CONTEXT}/_infra/init.sh /app/init.sh
 
 # Ensure that ocean is available for all in path
 RUN chmod a+x /app/.venv/bin/ocean
