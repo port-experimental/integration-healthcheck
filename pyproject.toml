@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "integration-healthcheck"
-version = "0.1.4-beta"
+version = "0.1.5-beta"
 description = "A service for monitoring and reporting the health status of Port integrations"
 authors = ["Ayodeji Adeoti <ayodeji.adeoti@getport.io>"]
 package-mode = false
