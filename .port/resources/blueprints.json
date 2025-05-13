@@ -2,7 +2,7 @@
     {
         "identifier": "portIntegration",
         "title": "Port Integration",
-        "icon": "Integration",
+        "icon": "Box",
         "schema": {
             "properties": {
                 "installationAppType": {
@@ -28,10 +28,11 @@
                 "status": {
                     "type": "string",
                     "title": "Status",
-                    "enum": ["running", "completed"],
+                    "enum": ["running", "completed", "failed"],
                     "enumColors": {
                         "running": "blue",
-                        "completed": "green"
+                        "completed": "green",
+                        "failed": "red"
                     },
                     "description": "The current status of the integration"
                 },
@@ -81,12 +82,12 @@
                     "description": "The integration configuration"
                 },
                 "successfulUpserts": {
-                    "type": "integer",
+                    "type": "number",
                     "title": "Successful Upserts",
                     "description": "Number of successful upserts performed by the integration"
                 },
                 "failedUpserts": {
-                    "type": "integer",
+                    "type": "number",
                     "title": "Failed Upserts",
                     "description": "Number of failed upserts performed by the integration"
                 }

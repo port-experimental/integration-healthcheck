@@ -18,7 +18,7 @@ type IntegrationHealth = Literal["HEALTHY", "WARNING", "ERROR", "INACTIVE"]
 class IntegrationClient:
     """
     Client for interacting with Port's integration API.
-    
+
     This client handles authentication, making requests to Port's API, and processing integration-related data.
     It provides methods to fetch integration details, logs, and perform health checks.
     """
@@ -32,7 +32,7 @@ class IntegrationClient:
     ):
         """
         Initialize the integration client.
-        
+
         Args:
             client_id: The client ID for authentication
             client_secret: The client secret for authentication
@@ -48,7 +48,7 @@ class IntegrationClient:
     async def _get_headers(self) -> dict[str, Any]:
         """
         Get the headers required for API requests, including the authentication token.
-        
+
         Returns:
             Dictionary containing Authorization and Content-Type headers
         """
@@ -62,15 +62,15 @@ class IntegrationClient:
     async def _send_request[T](self, method: str, url: str, **kwargs: Any) -> T:
         """
         Send an HTTP request to the Port API.
-        
+
         Args:
             method: HTTP method (GET, POST, etc.)
             url: The endpoint URL
             **kwargs: Additional arguments to pass to the request
-            
+
         Returns:
             The JSON response from the API
-            
+
         Raises:
             httpx.HTTPStatusError: If the request fails with a non-200 status code
             httpx.HTTPError: If there's a general HTTP error
@@ -93,7 +93,7 @@ class IntegrationClient:
     async def _fetch_integrations(self) -> list[dict[str, Any]]:
         """
         Fetch all integrations from the Port API.
-        
+
         Returns:
             List of integration dictionaries containing integration details
         """
@@ -108,11 +108,11 @@ class IntegrationClient:
     ) -> list[dict[str, Any]]:
         """
         Fetch logs for a specific integration.
-        
+
         Args:
             integration_id: The ID of the integration to fetch logs for
             limit: Maximum number of logs to return (default: 100)
-            
+
         Returns:
             List of log entries for the integration
         """
@@ -133,11 +133,11 @@ class IntegrationClient:
     ) -> list[dict[str, Any]]:
         """
         Fetch audit logs for a specific integration from a given date.
-        
+
         Args:
             integration_id: The ID of the integration to fetch audit logs for
             from_date: The date to fetch logs from
-            
+
         Returns:
             List of audit log entries for the integration
         """
@@ -163,26 +163,26 @@ class IntegrationClient:
     ) -> tuple[IntegrationHealth, str]:
         """
         Determine the health status of an integration based on its logs.
-        
+
         Args:
             logs: List of log entries to analyze
             from_date: The date to consider logs from
             context_logs_count: Number of recent logs to include in error/warning messages (default: 3)
-            
+
         Returns:
             Tuple containing the health status and any error message. If there's an error or warning,
             the message will include the last N relevant logs for context, where N is context_logs_count.
         """
         if not logs:
             return "INACTIVE", ""
-            
+
         # Keep track of the last few logs for context
         recent_logs = []
         for log in reversed(logs):
             recent_logs.append(f"[{log['timestamp']}] {log['level']}: {log['message']}")
             if len(recent_logs) > context_logs_count:  # Keep only the last N logs
                 recent_logs.pop(0)
-                
+
             if log["level"] == "ERROR":
                 context = "\nRecent logs:\n" + "\n".join(recent_logs)
                 return "ERROR", f"{log['message']}{context}"
@@ -198,10 +198,10 @@ class IntegrationClient:
     ) -> tuple[IntegrationHealth, str]:
         """
         Determine the health status of an integration based on its audit logs.
-        
+
         Args:
             logs: List of audit log entries to analyze
-            
+
         Returns:
             Tuple containing the health status and any error message
         """
@@ -212,26 +212,28 @@ class IntegrationClient:
                 return "ERROR", log["message"]
         return "HEALTHY", ""
 
-    def _calculate_upsert_stats(self, audit_logs: list[dict[str, Any]]) -> tuple[int, int]:
+    def _calculate_upsert_stats(
+        self, audit_logs: list[dict[str, Any]]
+    ) -> tuple[int, int]:
         """
         Calculate the number of successful and failed upserts from audit logs.
-        
+
         Args:
             audit_logs: List of audit log entries to analyze
-            
+
         Returns:
             Tuple containing (successful_upserts, failed_upserts)
         """
         successful_upserts = 0
         failed_upserts = 0
-        
+
         for log in audit_logs:
             if "upsert" in log.get("message", "").lower():
                 if log["status"] == "SUCCESS":
                     successful_upserts += 1
                 elif log["status"] == "FAILURE":
                     failed_upserts += 1
-                    
+
         return successful_upserts, failed_upserts
 
     async def _enrich_integration_health(
@@ -239,15 +241,15 @@ class IntegrationClient:
     ) -> dict[str, Any]:
         """
         Enrich an integration object with health status information.
-        
+
         This method checks both audit logs and regular logs to determine the integration's health.
         The health status is added as '__health' and any error message as '__errorMessage' to the integration dict.
-        
+
         Args:
             integration: The integration dictionary to enrich
             log_limit: Maximum number of logs to fetch
             context_logs_count: Number of recent logs to include in error/warning messages (default: 3)
-            
+
         Returns:
             The enriched integration dictionary
         """
@@ -269,12 +271,12 @@ class IntegrationClient:
                 or integration["createdAt"]
             ),
         )
-        
+
         # Calculate upsert statistics from audit logs
         successful_upserts, failed_upserts = self._calculate_upsert_stats(logs)
         integration["__successfulUpserts"] = successful_upserts
         integration["__failedUpserts"] = failed_upserts
-        
+
         health, error_message = self._determine_integration_health_from_audit_logs(
             logs,
         )
@@ -297,14 +299,16 @@ class IntegrationClient:
         integration["__errorMessage"] = error_message
         return integration
 
-    async def get_integrations(self, log_limit: int, context_logs_count: int = 3) -> list[dict[str, Any]]:
+    async def get_integrations(
+        self, log_limit: int, context_logs_count: int = 3
+    ) -> list[dict[str, Any]]:
         """
         Get all integrations with their health status.
-        
+
         Args:
             log_limit: Maximum number of logs to fetch for each integration
             context_logs_count: Number of recent logs to include in error/warning messages (default: 3)
-            
+
         Returns:
             List of integration dictionaries enriched with health information
         """
@@ -319,7 +323,7 @@ class IntegrationClient:
     async def healthcheck(self) -> bool:
         """
         Perform a health check of the connection to Port's API.
-        
+
         Returns:
             True if the connection is healthy, False otherwise
         """
