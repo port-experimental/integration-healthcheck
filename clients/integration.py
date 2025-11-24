@@ -6,16 +6,16 @@ This module provides functionality to manage and monitor integrations, including
 import asyncio
 from typing import Any, Literal
 
-import httpx
 from loguru import logger
 from port_ocean.clients.port.authentication import PortAuthentication
-from port_ocean.utils import http_async_client
+
+from clients._mixin import ClientMixin
 
 # Define possible integration health states
 type IntegrationHealth = Literal["HEALTHY", "WARNING", "ERROR", "INACTIVE"]
 
 
-class IntegrationClient:
+class IntegrationClient(ClientMixin):
     """
     Client for interacting with Port's integration API.
 
@@ -25,8 +25,6 @@ class IntegrationClient:
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
         port_client_auth: PortAuthentication,
         base_url: str = "https://api.port.io",
     ):
@@ -34,15 +32,11 @@ class IntegrationClient:
         Initialize the integration client.
 
         Args:
-            client_id: The client ID for authentication
-            client_secret: The client secret for authentication
             port_client_auth: Port authentication object
             base_url: The base URL for the Port API (defaults to https://api.port.io)
         """
-        self.client_id = client_id
-        self.client_secret = client_secret
+        super().__init__()
         self.base_url = base_url
-        self.client = http_async_client
         self.auth = port_client_auth
 
     async def _get_headers(self) -> dict[str, Any]:
@@ -58,37 +52,6 @@ class IntegrationClient:
             "Authorization": token,
             "Content-Type": "application/json",
         }
-
-    async def _send_request[T](self, method: str, url: str, **kwargs: Any) -> T:
-        """
-        Send an HTTP request to the Port API.
-
-        Args:
-            method: HTTP method (GET, POST, etc.)
-            url: The endpoint URL
-            **kwargs: Additional arguments to pass to the request
-
-        Returns:
-            The JSON response from the API
-
-        Raises:
-            httpx.HTTPStatusError: If the request fails with a non-200 status code
-            httpx.HTTPError: If there's a general HTTP error
-        """
-        logger.info(f"Sending request to {url} with method {method}")
-        try:
-            response = await self.client.request(
-                method, url, headers=await self._get_headers(), **kwargs
-            )
-            return response.json()
-        except httpx.HTTPStatusError as e:
-            logger.error(
-                f"Request failed with status code {e.response.status_code}: {e.response.text}"
-            )
-            raise e
-        except httpx.HTTPError as e:
-            logger.error(f"HTTP request failed: {e}")
-            raise e
 
     async def _fetch_integrations(self) -> list[dict[str, Any]]:
         """
@@ -319,6 +282,20 @@ class IntegrationClient:
         ]
         integrations = await asyncio.gather(*tasks)
         return integrations
+
+    async def resync_integration(self, integration: str) -> bool:
+        url = f"{self.base_url}/v1/integration/{integration}"
+
+        response: dict[str, bool] = await self._send_request("PATCH", url)
+
+        return response["ok"]
+
+    async def delete_integration(self, integration: str) -> bool:
+        url = f"{self.base_url}/v1/integration/{integration}"
+
+        response: dict[str, bool] = await self._send_request("DELETE", url)
+
+        return response["ok"]
 
     async def healthcheck(self) -> bool:
         """

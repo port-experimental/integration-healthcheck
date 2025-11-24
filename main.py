@@ -4,17 +4,9 @@ from loguru import logger
 from port_ocean.context.event import event
 from port_ocean.context.ocean import ocean
 
-from client import IntegrationClient
+from clients import initialize_integration_client
 from integration import IntegrationResourceConfig, ObjectKind
 
-
-def initialize_client() -> IntegrationClient:
-    return IntegrationClient(
-        ocean.config.port.client_id,
-        ocean.config.port.client_secret,
-        ocean.port_client.auth,
-        ocean.config.port.base_url,
-    )
 
 
 @ocean.on_resync(ObjectKind.INTEGRATION)
@@ -24,7 +16,7 @@ async def on_resync(kind: str) -> list[dict[Any, Any]]:
     logger.info(
         f"Resyncing integrations with log limit: {selector.log_limit} and context logs count: {selector.context_logs_count}"
     )
-    client = initialize_client()
+    client = initialize_integration_client()
     integrations = await client.get_integrations(
         log_limit=selector.log_limit, context_logs_count=selector.context_logs_count
     )
@@ -35,7 +27,7 @@ async def on_resync(kind: str) -> list[dict[Any, Any]]:
 @ocean.on_start()
 async def on_start() -> None:
     logger.info("Starting Port integration")
-    client = initialize_client()
+    client = initialize_integration_client()
 
     status = await client.healthcheck()
     if not status:
