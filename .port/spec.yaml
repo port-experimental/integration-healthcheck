@@ -6,3 +6,5 @@ features:
     section: Under Development
     resources:
       - kind: integration
+      - kind: blueprint
+      - kind: resync-event

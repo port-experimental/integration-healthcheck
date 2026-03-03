@@ -27,7 +27,7 @@
                 },
                 "status": {
                     "type": "string",
-                    "title": "Status",
+                    "title": "Integration Status",
                     "enum": ["running", "completed", "failed"],
                     "enumColors": {
                         "running": "blue",
@@ -90,9 +90,179 @@
                     "type": "number",
                     "title": "Failed Upserts",
                     "description": "Number of failed upserts performed by the integration"
+                },
+                "resyncDuration": {
+                  "type": "number",
+                  "title": "Resync Duration",
+                  "description": "Time it took for the resync to happen"
+                },
+                "oceanVersion": {
+                  "title": "Ocean Version",
+                  "type": "string"
+                },
+                "lastResyncSuccessful": {
+                  "type": "boolean",
+                  "title": "Resync Successful",
+                  "description": "If the sync was successful"
+                },
+                "lastSyncState": {
+                  "type": "string",
+                  "title": "Sync State",
+                  "description": "State of the last recorded resync event",
+                  "enum": ["completed", "pending", "syncing", "failed", "aborted"],
+                  "enumColors": {
+                    "completed": "green",
+                    "syncing": "blue",
+                    "pending": "orange",
+                    "failed": "red",
+                    "aborted": "lightGray"
+                  }
                 }
             }
         },
         "relations": {}
+    },
+    {
+      "identifier": "portBlueprint",
+      "title": "Port Blueprint",
+      "icon": "Blueprint",
+      "schema": {
+        "properties": {
+          "properties": {
+            "type": "array",
+            "title": "Properties"
+          },
+          "aggregationProperties": {
+            "type": "array",
+            "title": "Aggregation Properties"
+          },
+          "calculationProperties": {
+            "type": "array",
+            "title": "Calculation Properties"
+          },
+          "mirrorProperties": {
+            "type": "array",
+            "title": "Mirror Properties"
+          },
+          "entityCount": {
+            "type": "number",
+            "title": "Number of Entities"
+          }
+        }
+      },
+      "relations": {
+        "relatedBlueprints": {
+          "title": "Related Blueprints",
+          "target": "portBlueprint",
+          "many": true,
+          "required": false
+        }
+      }
+    },
+    {
+      "identifier": "portIntegrationKind",
+      "title": "Port Integration Kind",
+      "icon": "Bar",
+      "schema": {
+        "properties": {}
+      },
+      "relations": {
+        "currentlySyncedBlueprints": {
+          "title": "Currently Synced Blueprints",
+          "target": "portBlueprint",
+          "many": true,
+          "required": false
+        },
+        "integration": {
+          "title": "Integration",
+          "target": "portIntegration"
+        }
+      }
+    },
+    {
+      "identifier": "portIntegrationResyncEvent",
+      "title": "Port Integration Resync Event",
+      "icon": "Event",
+      "schema": {
+        "properties": {
+          "oceanVersion": {
+            "title": "Ocean Version",
+            "type": "string"
+          },
+          "kindIdentifier": {
+            "type": "string",
+            "description": "The block count from the same kind group, this event is associated with",
+            "title": "Kind Identifier"
+          },
+          "syncState": {
+            "type": "string",
+            "title": "Sync State",
+            "description": "Current state of this sync event",
+            "enum": ["completed", "pending", "syncing", "failed", "aborted"],
+            "enumColors": {
+              "completed": "green",
+              "syncing": "blue",
+              "pending": "orange",
+              "failed": "red",
+              "aborted": "lightGray"
+            }
+          },
+          "kindIndex": {
+            "type": "number",
+            "title": "Kind Index",
+            "description": "Mapping blocks could contain duplicate kind, this refers to the block of the same kind that the event handles."
+          },
+          "resyncSuccessful": {
+            "type": "boolean",
+            "title": "Resync Successful",
+            "description": "If the sync was successful"
+          },
+          "resyncDuration": {
+            "type": "number",
+            "title": "Resync Duration",
+            "description": "Time it took for the resync to happen"
+          },
+          "objectsExtracted": {
+            "type": "number",
+            "title": "Objects Extracted"
+          },
+          "objectsLoaded": {
+            "type": "number",
+            "title": "Objects Loaded"
+          },
+          "objectsTransformed": {
+            "type": "number",
+            "title": "Objects Transformed"
+          },
+          "objectsDeleted": {
+            "type": "number",
+            "title": "Objects Deleted"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Created At",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "title": "Updated At",
+            "format": "date-time"
+          }
+        }
+      },
+      "relations": {
+        "integration": {
+          "title": "Integration",
+          "target": "portIntegration"
+        },
+        "kind": {
+          "title": "Kind",
+          "target": "portIntegrationKind"
+        },
+        "blueprint": {
+          "title": "Blueprint",
+          "target": "portBlueprint"
+        }
+      }
     }
 ]

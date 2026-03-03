@@ -4,10 +4,12 @@ This module provides functionality to manage and monitor integrations, including
 """
 
 import asyncio
+from itertools import batched
 from typing import Any, Literal
 
 from loguru import logger
 from port_ocean.clients.port.authentication import PortAuthentication
+from port_ocean.utils.cache import cache_coroutine_result
 
 from clients._mixin import ClientMixin
 
@@ -53,6 +55,7 @@ class IntegrationClient(ClientMixin):
             "Content-Type": "application/json",
         }
 
+    @cache_coroutine_result()
     async def _fetch_integrations(self) -> list[dict[str, Any]]:
         """
         Fetch all integrations from the Port API.
@@ -276,12 +279,15 @@ class IntegrationClient(ClientMixin):
             List of integration dictionaries enriched with health information
         """
         integrations = await self._fetch_integrations()
-        tasks = [
-            self._enrich_integration_health(integration, log_limit, context_logs_count)
-            for integration in integrations
-        ]
-        integrations = await asyncio.gather(*tasks)
-        return integrations
+        batched_integrations = batched(integrations, self.MAX_CHUNK_REQUEST_SIZE)
+        enriched_integrations = []
+        for batch in batched_integrations:
+            tasks = [
+                self._enrich_integration_health(integration, log_limit, context_logs_count)
+                for integration in batch
+            ]
+            enriched_integrations.extend(await asyncio.gather(*tasks))
+        return enriched_integrations
 
     async def resync_integration(self, integration: str) -> bool:
         url = f"{self.base_url}/v1/integration/{integration}"
@@ -308,3 +314,26 @@ class IntegrationClient(ClientMixin):
             "GET", f"{self.base_url}/v1/organization"
         )
         return bool(response["ok"])
+
+    async def _get_resync_event(self, integration: str) -> list[dict[str, Any]]:
+        response: dict[str, list[dict[str, Any]]] = await self._send_request(
+            "GET", f"{self.base_url}/v1/integration/{integration}/syncMetrics"
+        )
+
+        return response["data"]
+
+    async def get_resync_events(self) -> list[dict[str, Any]]:
+        integrations = await self._fetch_integrations()
+        batched_integrations = batched(integrations, self.MAX_CHUNK_REQUEST_SIZE)
+        results = []
+        for batch in batched_integrations:
+            tasks = {
+                self._get_resync_event(integration["_id"]) for integration in batch
+            }
+
+            results.extend([
+                result
+                for result_batch in (await asyncio.gather(*tasks))
+                for result in result_batch
+            ])
+        return results

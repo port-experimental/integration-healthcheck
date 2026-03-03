@@ -16,6 +16,8 @@ class ClientMixin(ABC):
 
     This client provides methods to send requests and other utility methods.
     """
+    
+    MAX_CHUNK_REQUEST_SIZE: int = 20
 
     def __init__(self):
         self.client = http_async_client

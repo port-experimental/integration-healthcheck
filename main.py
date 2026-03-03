@@ -4,13 +4,12 @@ from loguru import logger
 from port_ocean.context.event import event
 from port_ocean.context.ocean import ocean
 
-from clients import initialize_integration_client
-from integration import IntegrationResourceConfig, ObjectKind
-
+from clients import initialize_blueprint_client, initialize_integration_client
+from integration import BlueprintResourceConfig, IntegrationResourceConfig, ObjectKind
 
 
 @ocean.on_resync(ObjectKind.INTEGRATION)
-async def on_resync(kind: str) -> list[dict[Any, Any]]:
+async def on_resync_integration(kind: str) -> list[dict[Any, Any]]:
     selector = cast(IntegrationResourceConfig, event.resource_config).selector
     selector.validate_log_limit(selector.log_limit)
     logger.info(
@@ -22,6 +21,23 @@ async def on_resync(kind: str) -> list[dict[Any, Any]]:
     )
     logger.info(f"Received batch of {len(integrations)} integrations")
     return integrations
+
+
+@ocean.on_resync(ObjectKind.BLUEPRINT)
+async def on_resync_blueprint(kind: str) -> list[dict[Any, Any]]:
+    selector = cast(BlueprintResourceConfig, event.resource_config).selector
+    client = initialize_blueprint_client()
+    blueprints = await client.get_blueprints(get_entity_count=selector.get_entity_count)
+    logger.info(f"Received batch of {len(blueprints)} blueprints")
+    return blueprints
+
+
+@ocean.on_resync(ObjectKind.RESYNC_EVENT)
+async def on_resync_resync_event(kind: str) -> list[dict[Any, Any]]:
+    client = initialize_integration_client()
+    resync_events = await client.get_resync_events()
+    logger.info(f"Received batch of {len(resync_events)} resync events")
+    return resync_events
 
 
 @ocean.on_start()
