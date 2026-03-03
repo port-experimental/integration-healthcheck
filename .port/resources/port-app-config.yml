@@ -12,7 +12,7 @@ resources:
           properties:
             installationAppType: .installationAppType
             version: .version
-            installationType: .installationType
+            installationType: .installationType // "OnPrem"
             status: .resyncState.status
             health: .__health
             lastResyncStart: .resyncState.lastResyncStart
@@ -22,4 +22,88 @@ resources:
             errorMessage: .__errorMessage
             successfulUpserts: .__successfulUpserts
             failedUpserts: .__failedUpserts
-          
+
+  - kind: blueprint
+    selector:
+      query: 'true'
+      getEntityCount: true
+    port:
+      entity:
+        mappings:
+          identifier: .identifier
+          title: .title
+          blueprint: '"portBlueprint"'
+          icon: .icon
+          properties:
+            properties: .schema.properties | keys
+            aggregationProperties: .aggregationProperties | keys
+            calculationProperties: .calculationProperties | keys
+            mirrorProperties: .mirrorProperties | keys
+            entityCount: .__entityCount
+          relations:
+            relatedBlueprints: .relations | keys
+
+  - kind: integration
+    selector:
+      query: 'true'
+    port:
+      itemsToParse: ".config.resources | group_by(.kind) | map({kind: .[0].kind,blueprints: (map(.port.entity.mappings.blueprint| gsub(\"^\"|\"$\"; \"\"))   | unique) })"
+      itemsToParseName: 'resource'
+      entity:
+        mappings:
+          identifier: .installationId + "-" + .resource.kind
+          title: .resource.kind
+          blueprint: '"portIntegrationKind"'
+          properties: {}
+          relations:
+            currentlySyncedBlueprints: .resource.blueprints
+            integration: ._id
+
+  - kind: resync-event
+    selector:
+      query: .kind != "__runtime__"
+    port:
+      entity:
+        mappings:
+          identifier: .eventId + "-" + .kindIdentifier
+          title: .integrationIdentifier + "-" + .kindIdentifier
+          blueprint: '"portIntegrationResyncEvent"'
+          properties:
+            oceanVersion: .oceanVersion
+            kindIdentifier: .kindIdentifier
+            syncState: .syncState
+            kindIndex: .kindIndex
+            resyncSuccessful: .metrics.phase.resync.success == 1
+            resyncDuration: .metrics.phase.resync.duration_seconds
+            objectsExtracted: .metrics.phase.extract.object_count_type.raw_extracted.object_count
+            objectsLoaded: .metrics.phase.load.object_count_type.loaded.object_count
+            objectsTransformed: .metrics.phase.transform.object_count_type.transformed.object_count
+            objectsDeleted: .metrics.phase.delete.object_count_type.deleted.object_count
+            createdAt: .createdAt
+            updatedAt: .updatedAt
+          relations:
+            kind: .kind
+            integration: .integration
+            blueprint: .blueprint | sub("^\"|\"$"; "")
+
+  - kind: resync-event
+    selector:
+      query: .kind == "__runtime__"
+    port:
+      entity:
+        mappings:
+          identifier:
+            combinator: '"and"'
+            rules:
+              - property: '"$title"'
+                operator: '"="'
+                value: .integrationIdentifier
+              - property: '"$blueprint"'
+                operator: '"="'
+                value: '"portIntegration"'
+          blueprint: '"portIntegration"'
+          properties:
+            resyncDuration: .metrics.phase.resync.duration_seconds
+            oceanVersion: .oceanVersion
+            lastResyncSuccessful: .metrics.phase.resync.success == 1
+            lastSyncState: .syncState

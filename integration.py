@@ -13,6 +13,8 @@ from pydantic.fields import Field
 
 class ObjectKind(StrEnum):
     INTEGRATION = "integration"
+    BLUEPRINT = "blueprint"
+    RESYNC_EVENT = "resync-event"
 
 
 class IntegrationSelector(Selector):
@@ -35,12 +37,29 @@ class IntegrationSelector(Selector):
 
 
 class IntegrationResourceConfig(ResourceConfig):
-    selector: IntegrationSelector
-    kind: Literal["integration"]
+    selector: IntegrationSelector   # type: ignore
+    kind: Literal["integration"]    # type: ignore
+
+
+class BlueprintSelector(Selector):
+    get_entity_count: bool = Field(
+        alias="getEntityCount",
+        default=False,
+        description="Get the number of entities existing for this blueprint"
+    )
+
+
+class BlueprintResourceConfig(ResourceConfig):
+    selector: BlueprintSelector # type: ignore
+    kind: Literal["blueprint"]  # type: ignore
 
 
 class IntegrationAppConfig(PortAppConfig):
-    resources: list[IntegrationResourceConfig | ResourceConfig] = Field(
+    resources: list[
+        IntegrationResourceConfig
+        | BlueprintResourceConfig
+        | ResourceConfig
+    ] = Field(
         default_factory=list,
     )
 
